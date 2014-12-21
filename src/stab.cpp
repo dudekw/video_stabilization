@@ -301,7 +301,7 @@ int main(int argc, char** argv)
 
 		keyPressed = waitKey(33);
 	}
-
+  cap.release();
     cout<<"test"<< endl;
   return 0;
 }
