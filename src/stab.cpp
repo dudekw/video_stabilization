@@ -6,7 +6,7 @@
 using namespace std;
 using namespace cv;
 
-void processFrames( Mat last, Mat new);
+void processFrames( Mat, Mat);
 
 int main(int argc, char** argv)
 {
@@ -40,6 +40,6 @@ int main(int argc, char** argv)
   return 0;
 }
 
-void processFrames( Mat last, Mat new){
+void processFrames( Mat lastFrame, Mat newFrame){
 
 }
