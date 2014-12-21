@@ -13,7 +13,7 @@ opencv2/highgui/highgui.hpp
 /home/wojciech/git_hub/video_stabilization/src/opencv2/highgui/highgui.hpp
 cv.h
 /home/wojciech/git_hub/video_stabilization/src/cv.h
-opencv2/features2d.hpp
+opencv2/feature2d/features2d.hpp
 -
 opencv2/videoio.hpp
 -
