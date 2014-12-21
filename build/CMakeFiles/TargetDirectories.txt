@@ -1,1 +1,0 @@
-/Users/Dudek/develop/repos/wojtek/video_stabilization/build/CMakeFiles/stab.dir
