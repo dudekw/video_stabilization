@@ -323,6 +323,14 @@ void processFrames( Mat lastFrame, Mat newFrame){
 	img2 = newFrame;
 	rmatcher.match(img1, img2, matches, img1_keypoints, img2_keypoints);
 
+	Mat debug;
+
+	cv::drawMatches(img1, img1_keypoints, img2, img2_keypoints, matches,
+		 debug);
+
+	imshow("debug", debug);
+
+
 }
 
 
