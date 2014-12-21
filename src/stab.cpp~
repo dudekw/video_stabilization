@@ -6,7 +6,7 @@ using namespace std;
 int main(int argc, char** argv)
 {
 
-    cout<<"No param named 'ball_finder_blured_d' Ustawiam sam na: "<< endl;
+    cout<<"test"<< endl;
   return 0;
 }
 
