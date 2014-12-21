@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
   "../CMakeLists.txt"
+<<<<<<< HEAD
   "CMakeFiles/3.0.2/CMakeCCompiler.cmake"
   "CMakeFiles/3.0.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.0.2/CMakeSystem.cmake"
@@ -51,6 +52,48 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/opt/local/share/cmake-3.0/Modules/Platform/Darwin-Clang.cmake"
   "/opt/local/share/cmake-3.0/Modules/Platform/Darwin.cmake"
   "/opt/local/share/cmake-3.0/Modules/Platform/UnixPaths.cmake"
+=======
+  "CMakeFiles/2.8.12.2/CMakeCCompiler.cmake"
+  "CMakeFiles/2.8.12.2/CMakeCXXCompiler.cmake"
+  "CMakeFiles/2.8.12.2/CMakeSystem.cmake"
+  "/usr/share/OpenCV/OpenCVConfig-version.cmake"
+  "/usr/share/OpenCV/OpenCVConfig.cmake"
+  "/usr/share/OpenCV/OpenCVModules-release.cmake"
+  "/usr/share/OpenCV/OpenCVModules.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeCCompiler.cmake.in"
+  "/usr/share/cmake-2.8/Modules/CMakeCCompilerABI.c"
+  "/usr/share/cmake-2.8/Modules/CMakeCInformation.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeCXXCompiler.cmake.in"
+  "/usr/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp"
+  "/usr/share/cmake-2.8/Modules/CMakeCXXInformation.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeClDeps.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeCommonLanguageInclude.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeDetermineCCompiler.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeDetermineCXXCompiler.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeDetermineCompiler.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeDetermineCompilerABI.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeDetermineCompilerId.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeDetermineSystem.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeFindBinUtils.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeGenericSystem.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeParseImplicitLinkInfo.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeSystem.cmake.in"
+  "/usr/share/cmake-2.8/Modules/CMakeSystemSpecificInformation.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeTestCCompiler.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeTestCXXCompiler.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeTestCompilerCommon.cmake"
+  "/usr/share/cmake-2.8/Modules/CMakeUnixFindMake.cmake"
+  "/usr/share/cmake-2.8/Modules/Compiler/GNU-C.cmake"
+  "/usr/share/cmake-2.8/Modules/Compiler/GNU-CXX.cmake"
+  "/usr/share/cmake-2.8/Modules/Compiler/GNU.cmake"
+  "/usr/share/cmake-2.8/Modules/MultiArchCross.cmake"
+  "/usr/share/cmake-2.8/Modules/Platform/Linux-CXX.cmake"
+  "/usr/share/cmake-2.8/Modules/Platform/Linux-GNU-C.cmake"
+  "/usr/share/cmake-2.8/Modules/Platform/Linux-GNU-CXX.cmake"
+  "/usr/share/cmake-2.8/Modules/Platform/Linux-GNU.cmake"
+  "/usr/share/cmake-2.8/Modules/Platform/Linux.cmake"
+  "/usr/share/cmake-2.8/Modules/Platform/UnixPaths.cmake"
+>>>>>>> 98495c341f9b3c6d74c9d6cd2eed532d0a24083b
   )
 
 # The corresponding makefile is:
@@ -60,12 +103,21 @@ set(CMAKE_MAKEFILE_OUTPUTS
   )
 
 # Byproducts of CMake generate step:
+<<<<<<< HEAD
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/3.0.2/CMakeSystem.cmake"
   "CMakeFiles/3.0.2/CMakeCCompiler.cmake"
   "CMakeFiles/3.0.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.0.2/CMakeCCompiler.cmake"
   "CMakeFiles/3.0.2/CMakeCXXCompiler.cmake"
+=======
+SET(CMAKE_MAKEFILE_PRODUCTS
+  "CMakeFiles/2.8.12.2/CMakeSystem.cmake"
+  "CMakeFiles/2.8.12.2/CMakeCCompiler.cmake"
+  "CMakeFiles/2.8.12.2/CMakeCXXCompiler.cmake"
+  "CMakeFiles/2.8.12.2/CMakeCCompiler.cmake"
+  "CMakeFiles/2.8.12.2/CMakeCXXCompiler.cmake"
+>>>>>>> 98495c341f9b3c6d74c9d6cd2eed532d0a24083b
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 

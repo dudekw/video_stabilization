@@ -12,6 +12,7 @@ opencv2/imgproc/imgproc.hpp
 opencv2/highgui/highgui.hpp
 /Users/Dudek/develop/repos/wojtek/video_stabilization/src/opencv2/highgui/highgui.hpp
 cv.h
+<<<<<<< HEAD
 /Users/Dudek/develop/repos/wojtek/video_stabilization/src/cv.h
 opencv2/features2d/features2d.hpp
 -
@@ -1912,6 +1913,10 @@ boost/type_traits/detail/type_trait_undef.hpp
 boost/type_traits/detail/cv_traits_impl.hpp
 -
 boost/config.hpp
+=======
+/home/wojciech/git_hub/video_stabilization/src/cv.h
+opencv2/feature2d/features2d.hpp
+>>>>>>> 98495c341f9b3c6d74c9d6cd2eed532d0a24083b
 -
 boost/detail/workaround.hpp
 -
