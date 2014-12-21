@@ -10,6 +10,12 @@
 using namespace std;
 using namespace cv;
 
+//public variables
+cv::Ptr<cv::FeatureDetector> detector;
+cv::Ptr<cv::DescriptorExtractor> extractor ;//= new cv::OrbDescriptorExtractor;
+cv::Ptr<cv::DescriptorMatcher > matcher;// = new cv::BruteForceMatcher<cv::HammingLUT>;
+BFMatcher _matcher;
+
 //RobustMatcher class taken from OpenCV2 Computer Vision Application Programming Cookbook Ch 9
 class RobustMatcher {
   private:
@@ -29,7 +35,7 @@ class RobustMatcher {
         // ORB is the default feature
         detector= new cv::OrbFeatureDetector();
         extractor= new cv::OrbDescriptorExtractor();
- BFMatcher matcher(NORM_L2)
+ 		BFMatcher matcher(NORM_L2);
      //  matcher= new cv::BruteForceMatcher<cv::HammingLUT>;
      }
 
@@ -284,36 +290,37 @@ int main(int argc, char** argv)
 
 void processFrames( Mat lastFrame, Mat newFrame){
 
-// set parameters
+	// set parameters
 
-int numKeyPoints = 1500;
+	int numKeyPoints = 1500;
 
-//Instantiate robust matcher
+	//Instantiate robust matcher
 
-RobustMatcher rmatcher;
+	RobustMatcher rmatcher;
 
-//instantiate detector, extractor, matcher
+	//instantiate detector, extractor, matcher
 
-detector = new cv::OrbFeatureDetector(numKeyPoints);
-extractor = new cv::OrbDescriptorExtractor;
-matcher = new cv::BruteForceMatcher<cv::HammingLUT>;
+	detector = new cv::ORB(numKeyPoints);
+	extractor = new cv::OrbDescriptorExtractor;
+	_matcher = BFMatcher(NORM_L2);
+	matcher = &_matcher;//new cv::BFMatcher<cv::HammingLUT>();
 
-rmatcher.setFeatureDetector(detector);
-rmatcher.setDescriptorExtractor(extractor);
-rmatcher.setDescriptorMatcher(matcher);
+	rmatcher.setFeatureDetector(detector);
+	rmatcher.setDescriptorExtractor(extractor);
+	rmatcher.setDescriptorMatcher(matcher);
 
-//Load input image detect keypoints
+	//Load input image detect keypoints
 
-cv::Mat img1;
-std::vector<cv::KeyPoint> img1_keypoints;
-cv::Mat img1_descriptors;
-cv::Mat img2;
-std::vector<cv::KeyPoint> img2_keypoints
-cv::Mat img2_descriptors;
-std::vector<std::vector<cv::DMatch> > matches;
-img1 = lastFrame;
-img2 = nawFrame;
-rmatcher.match(img1, img2, matches, img1_keypoints, img2_keypoints);
+	cv::Mat img1;
+	std::vector<cv::KeyPoint> img1_keypoints;
+	cv::Mat img1_descriptors;
+	cv::Mat img2;
+	std::vector<cv::KeyPoint> img2_keypoints;
+	cv::Mat img2_descriptors;
+	std::vector<cv::DMatch> matches;
+	img1 = lastFrame;
+	img2 = newFrame;
+	rmatcher.match(img1, img2, matches, img1_keypoints, img2_keypoints);
 
 }
 
