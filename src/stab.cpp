@@ -254,6 +254,20 @@ class RobustMatcher {
 };
 RobustMatcher rmatcher;
  void setRMatcher(){
+    // set parameters
+
+  int numKeyPoints = 1500;
+
+  //Instantiate robust matcher
+
+
+
+  //instantiate detector, extractor, matcher
+
+  detector = new cv::ORB(numKeyPoints);
+  extractor = new cv::OrbDescriptorExtractor;
+  _matcher = BFMatcher(NORM_L2);
+  matcher = &_matcher;//new cv::BFMatcher<cv::HammingLUT>();
   rmatcher.setFeatureDetector(detector);
   rmatcher.setDescriptorExtractor(extractor);
   rmatcher.setDescriptorMatcher(matcher);
@@ -271,7 +285,7 @@ int main(int argc, char** argv)
 	cv::Mat lastFrame;
 
 	int keyPressed = -1;
-
+  setRMatcher();
 	while(keyPressed != 27){
 
 		lastFrame = frame;
@@ -294,20 +308,7 @@ int main(int argc, char** argv)
 
 void processFrames( Mat lastFrame, Mat newFrame){
 
-	// set parameters
 
-	int numKeyPoints = 1500;
-
-	//Instantiate robust matcher
-
-
-
-	//instantiate detector, extractor, matcher
-
-	detector = new cv::ORB(numKeyPoints);
-	extractor = new cv::OrbDescriptorExtractor;
-	_matcher = BFMatcher(NORM_L2);
-	matcher = &_matcher;//new cv::BFMatcher<cv::HammingLUT>();
 
 	//Load input image detect keypoints
 
