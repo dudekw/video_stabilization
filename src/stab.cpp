@@ -15,6 +15,7 @@ cv::Ptr<cv::FeatureDetector> detector;
 cv::Ptr<cv::DescriptorExtractor> extractor ;//= new cv::OrbDescriptorExtractor;
 cv::Ptr<cv::DescriptorMatcher > matcher;// = new cv::BruteForceMatcher<cv::HammingLUT>;
 BFMatcher _matcher;
+  
 
 //RobustMatcher class taken from OpenCV2 Computer Vision Application Programming Cookbook Ch 9
 class RobustMatcher {
@@ -251,9 +252,12 @@ class RobustMatcher {
     return fundemental;
   }
 };
-
-
-
+RobustMatcher rmatcher;
+ void setRMatcher(){
+  rmatcher.setFeatureDetector(detector);
+  rmatcher.setDescriptorExtractor(extractor);
+  rmatcher.setDescriptorMatcher(matcher);
+}
 void processFrames( Mat, Mat);
 
 int main(int argc, char** argv)
@@ -296,7 +300,7 @@ void processFrames( Mat lastFrame, Mat newFrame){
 
 	//Instantiate robust matcher
 
-	RobustMatcher rmatcher;
+
 
 	//instantiate detector, extractor, matcher
 
@@ -304,10 +308,6 @@ void processFrames( Mat lastFrame, Mat newFrame){
 	extractor = new cv::OrbDescriptorExtractor;
 	_matcher = BFMatcher(NORM_L2);
 	matcher = &_matcher;//new cv::BFMatcher<cv::HammingLUT>();
-
-	rmatcher.setFeatureDetector(detector);
-	rmatcher.setDescriptorExtractor(extractor);
-	rmatcher.setDescriptorMatcher(matcher);
 
 	//Load input image detect keypoints
 
