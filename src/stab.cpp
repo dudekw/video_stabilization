@@ -1,14 +1,14 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "opencv2/highgui/highgui.hpp"
 #include "cv.h"
-#include <opencv2/features2d.hpp>
-#include <opencv2/videoio.hpp>
+#include <opencv2/features2d/features2d.hpp>
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <iostream>
 #include <iomanip>
 
 using namespace std;
+using namespace cv;
 
 const double akaze_thresh = 3e-4; // AKAZE detection threshold set to locate about 1000 keypoints
 const double ransac_thresh = 2.5f; // RANSAC inlier threshold

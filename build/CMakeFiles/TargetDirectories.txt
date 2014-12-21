@@ -1,1 +1,1 @@
-/home/wojciech/git_hub/video_stabilization/build/CMakeFiles/stab.dir
+/Users/Dudek/develop/repos/wojtek/video_stabilization/build/CMakeFiles/stab.dir
