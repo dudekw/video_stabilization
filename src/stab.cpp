@@ -308,8 +308,6 @@ int main(int argc, char** argv)
 
 void processFrames( Mat lastFrame, Mat newFrame){
 
-
-
 	//Load input image detect keypoints
 
 	cv::Mat img1;
@@ -329,6 +327,33 @@ void processFrames( Mat lastFrame, Mat newFrame){
 		 debug);
 
 	imshow("debug", debug);
+
+  std::vector<Point2f> obj;
+  std::vector<Point2f> scene;
+
+  for( int i = 0; i < matches.size(); i++ )
+  {
+    //-- Get the keypoints from the good matches
+    obj.push_back( img1_keypoints[ matches[i].queryIdx ].pt );
+    scene.push_back( img2_keypoints[ matches[i].trainIdx ].pt );
+  }
+
+  Mat H = findHomography( obj, scene, CV_RANSAC );
+
+  std::vector<Point2f> obj_corners(4);
+  obj_corners[0] = cvPoint(0,0); obj_corners[1] = cvPoint( img1.cols, 0 );
+  obj_corners[2] = cvPoint( img1.cols, img1.rows ); obj_corners[3] = cvPoint( 0, img1.rows );
+  std::vector<Point2f> scene_corners(4);
+
+  perspectiveTransform( obj_corners, scene_corners, H);
+
+  Mat homography = img2.clone();
+  //-- Draw lines between the corners (the mapped object in the scene - image_2 )
+  line( homography, scene_corners[0] + Point2f( img_object.cols, 0), scene_corners[1] + Point2f( img_object.cols, 0), Scalar(0, 255, 0), 4 );
+  line( homography, scene_corners[1] + Point2f( img_object.cols, 0), scene_corners[2] + Point2f( img_object.cols, 0), Scalar( 0, 255, 0), 4 );
+  line( homography, scene_corners[2] + Point2f( img_object.cols, 0), scene_corners[3] + Point2f( img_object.cols, 0), Scalar( 0, 255, 0), 4 );
+  line( homography, scene_corners[3] + Point2f( img_object.cols, 0), scene_corners[0] + Point2f( img_object.cols, 0), Scalar( 0, 255, 0), 4 );
+
 
 
 }
