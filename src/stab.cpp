@@ -287,7 +287,7 @@ cv::Rect TARGET_RECTANGLE = cv::Rect((FRAME_WIDTH*(1-TARGET_WIDTH))/2,
 int main(int argc, char** argv)
 {
 
-	cv::VideoCapture cap("test.mp4");
+	cv::VideoCapture cap("../test.mp4");
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
 
@@ -335,8 +335,8 @@ void KalmanInit(){
     measurement.setTo(Scalar(0));
  
     // init...
-    KF.statePre.at<float>(0) = FRAME_WIDTH/2;
-    KF.statePre.at<float>(1) = FRAME_HEIGHT/2;
+    KF.statePre.at<float>(0) = 0.5f;
+    KF.statePre.at<float>(1) = 0.5f;
     KF.statePre.at<float>(2) = 0;
     KF.statePre.at<float>(3) = 0;
     setIdentity(KF.measurementMatrix);
@@ -400,23 +400,48 @@ void processFrames( Mat lastFrame, Mat newFrame){
     }
     center.x /= 4;
     center.y /= 4;
-    center += Point2f( img1.cols, 0);
+    //center += Point2f( img1.cols, 0);
 
     circle( debug, center, 20 , cv::Scalar(255,0,0), -1);
+
+
+    cout << "Kalman start" << center.x << " " << center.y << endl;
+
+    if(center.x > FRAME_WIDTH || center.x < 0 ||
+       center.y > FRAME_HEIGHT || center.y < 0){
+      return;
+    }
+
     
     // First predict, to update the internal statePre variable
     Mat prediction = KF.predict();
     Point predictPt(prediction.at<float>(0),prediction.at<float>(1));
+
+    cout << "Kalman start2" << center.x << " " << center.y << endl;
+
+    float temp = float(center.x)/FRAME_WIDTH;
+    cout << "Kalman start3" << temp << endl;
                      
-    measurement(0) = center.x;
-    measurement(1) = center.y;
+    measurement(0) = temp;
+
+    measurement(1) = float(center.y)/FRAME_HEIGHT;
+
+    cout << "Kalman mes " << measurement(0) << " " << measurement(1) << endl;
+
 
     Point measPt(measurement(0),measurement(1));
      
     // The "correct" phase that is going to use the predicted value and our measurement
     Mat estimated = KF.correct(measurement);
     Point statePt(estimated.at<float>(0),estimated.at<float>(1));
-    circle( debug, measPt, 10 , cv::Scalar(255,255,0), -1);
+
+
+    cout << "Kalman mes " << statePt.x << " " << statePt.y << endl;
+
+    statePt.x *= FRAME_WIDTH;
+    statePt.y *= FRAME_HEIGHT;
+
+    circle( debug, statePt, 10 , cv::Scalar(255,255,0), -1);
         imshow("debug", debug);
 
     //imshow("homograhy", homography);
