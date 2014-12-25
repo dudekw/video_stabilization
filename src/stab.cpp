@@ -274,8 +274,8 @@ RobustMatcher rmatcher;
 }
 void processFrames( Mat, Mat);
 
-int FRAME_WIDTH = 320;
-int FRAME_HEIGHT = 240;
+int FRAME_WIDTH = 854;
+int FRAME_HEIGHT = 480;
 double TARGET_HEIGHT = 0.8;
 double TARGET_WIDTH = 0.8;
 cv::Rect TARGET_RECTANGLE = cv::Rect((FRAME_WIDTH*(1-TARGET_WIDTH))/2,
@@ -301,6 +301,8 @@ int main(int argc, char** argv)
 		cap >> frame;
     counter ++;
 
+    cout << "nowa klatka " << frame.cols << " " << frame.rows << endl;
+
     
     if(!lastFrame.empty()){
 
@@ -311,7 +313,7 @@ int main(int argc, char** argv)
 
     imshow("frame", frame);
 
-    if(counter > 5 && !frame.empty()){ //counter % 1 == 0){
+    if(counter > 15 && !frame.empty()){ //counter % 1 == 0){
   //       >
   //    \____/
       cout << "nowy frame" << endl;
@@ -375,6 +377,17 @@ void processFrames( Mat lastFrame, Mat newFrame){
     line( debug, scene_corners[1] + Point2f( img1.cols, 0), scene_corners[2] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
     line( debug, scene_corners[2] + Point2f( img1.cols, 0), scene_corners[3] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
     line( debug, scene_corners[3] + Point2f( img1.cols, 0), scene_corners[0] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
+
+    cv::Point2f center = cv::Point2f(0,0);
+    for(int i = 0; i < scene_corners.size(); i ++){
+      center += scene_corners[i];
+    }
+    center.x /= 4;
+    center.y /= 4;
+    center += Point2f( img1.cols, 0);
+
+    circle( debug, center, 20 , cv::Scalar(255,0,0), -1);
+
 
 
     imshow("debug", debug);
