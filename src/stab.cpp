@@ -274,12 +274,21 @@ RobustMatcher rmatcher;
 }
 void processFrames( Mat, Mat);
 
+int FRAME_WIDTH = 320;
+int FRAME_HEIGHT = 240;
+double TARGET_HEIGHT = 0.8;
+double TARGET_WIDTH = 0.8;
+cv::Rect TARGET_RECTANGLE = cv::Rect((FRAME_WIDTH*(1-TARGET_WIDTH))/2,
+                                    (FRAME_HEIGHT*(1-TARGET_HEIGHT))/2,
+                                    FRAME_WIDTH*TARGET_WIDTH,
+                                    FRAME_HEIGHT*TARGET_HEIGHT);
+
 int main(int argc, char** argv)
 {
 
-	cv::VideoCapture cap(0);
-	cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+	cv::VideoCapture cap("test.mp4");
+	cap.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
+	cap.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
 
 	cv::Mat frame;
 	cv::Mat lastFrame;
@@ -292,10 +301,7 @@ int main(int argc, char** argv)
 		cap >> frame;
     counter ++;
 
-    if(counter % 100 == 0){
-      cout << "nowy frame" << endl;
-      lastFrame = frame.clone();
-    }
+    
     if(!lastFrame.empty()){
 
       processFrames(lastFrame, frame);
@@ -304,6 +310,14 @@ int main(int argc, char** argv)
     }
 
     imshow("frame", frame);
+
+    if(counter > 5 && !frame.empty()){ //counter % 1 == 0){
+  //       >
+  //    \____/
+      cout << "nowy frame" << endl;
+      lastFrame = frame.clone();
+      lastFrame = lastFrame(TARGET_RECTANGLE);
+    }
 
 		keyPressed = waitKey(33);
 	}
@@ -329,10 +343,9 @@ void processFrames( Mat lastFrame, Mat newFrame){
 
 	Mat debug;
 
-	cv::drawMatches(img1, img1_keypoints, img2, img2_keypoints, matches,
-		 debug);
+	 cv::drawMatches(img1, img1_keypoints, img2, img2_keypoints, matches,
+	 	 debug);
 
-	imshow("debug", debug);
 
   std::vector<Point2f> obj;
   std::vector<Point2f> scene;
@@ -344,24 +357,32 @@ void processFrames( Mat lastFrame, Mat newFrame){
     scene.push_back( img2_keypoints[ matches[i].trainIdx ].pt );
   }
 
-  Mat H = findHomography( cv::Mat(obj), cv::Mat(scene), CV_RANSAC );
+  cout << "znalzl obj macze " << obj.size() << " " << scene.size() << endl;
 
-  std::vector<Point2f> obj_corners(4);
-  obj_corners[0] = cvPoint(0,0); obj_corners[1] = cvPoint( img1.cols, 0 );
-  obj_corners[2] = cvPoint( img1.cols, img1.rows ); obj_corners[3] = cvPoint( 0, img1.rows );
-  std::vector<Point2f> scene_corners(4);
+  if(obj.size() > 4 && scene.size() > 4){
+    Mat H = findHomography( cv::Mat(obj), cv::Mat(scene), CV_RANSAC );
 
-  perspectiveTransform( obj_corners, scene_corners, H);
+    std::vector<Point2f> obj_corners(4);
+    obj_corners[0] = cvPoint(0,0); obj_corners[1] = cvPoint( img1.cols, 0 );
+    obj_corners[2] = cvPoint( img1.cols, img1.rows ); obj_corners[3] = cvPoint( 0, img1.rows );
+    std::vector<Point2f> scene_corners(4);
 
-  Mat homography = img2.clone();
-  //-- Draw lines between the corners (the mapped object in the scene - image_2 )
-  line( homography, scene_corners[0] + Point2f( img1.cols, 0), scene_corners[1] + Point2f( img1.cols, 0), Scalar(0, 255, 0), 4 );
-  line( homography, scene_corners[1] + Point2f( img1.cols, 0), scene_corners[2] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
-  line( homography, scene_corners[2] + Point2f( img1.cols, 0), scene_corners[3] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
-  line( homography, scene_corners[3] + Point2f( img1.cols, 0), scene_corners[0] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
+    perspectiveTransform( obj_corners, scene_corners, H);
+
+    //Mat homography = img2.clone();
+    //-- Draw lines between the corners (the mapped object in the scene - image_2 )
+    line( debug, scene_corners[0] + Point2f( img1.cols, 0), scene_corners[1] + Point2f( img1.cols, 0), Scalar(0, 255, 0), 4 );
+    line( debug, scene_corners[1] + Point2f( img1.cols, 0), scene_corners[2] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
+    line( debug, scene_corners[2] + Point2f( img1.cols, 0), scene_corners[3] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
+    line( debug, scene_corners[3] + Point2f( img1.cols, 0), scene_corners[0] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
 
 
-  imshow("homograhy", homography);
+    imshow("debug", debug);
+
+    //imshow("homograhy", homography);
+  }
+
+  
 }
 
 
