@@ -337,17 +337,31 @@ void initTargetRect( int width, int height ){
 
 int main(int argc, char** argv)
 {
-  if(argc != 3){
+  string videoPath = "";
+
+  if(argc == 1){
     initTargetRect(FRAME_WIDTH, FRAME_HEIGHT);
-  } else {
+  } else if(argc == 3){
     cout << atoi(argv[1]) << " " << atoi(argv[2]);
     initTargetRect(atoi(argv[1]), atoi(argv[2]));
+    FRAME_WIDTH = atoi(argv[1]);
+    FRAME_HEIGHT = atoi(argv[2]);
+  } else if(argc == 4){
+    initTargetRect(atoi(argv[1]), atoi(argv[2]));
+    FRAME_WIDTH = atoi(argv[1]);
+    FRAME_HEIGHT = atoi(argv[2]);
+    videoPath = argv[3];
   }
 
   KalmanInit();
   NewWindows();
 
-	cv::VideoCapture cap(0);//"../test.mp4");
+  cv::VideoCapture cap;
+  if(videoPath.compare("") != 0){
+    cap.open(videoPath);
+  } else {
+    cap.open(0);
+  }
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
 
