@@ -285,19 +285,25 @@ int main(int argc, char** argv)
 	cv::Mat lastFrame;
 
 	int keyPressed = -1;
+  int counter = 0;
   setRMatcher();
 	while(keyPressed != 27){
 
-		lastFrame = frame;
 		cap >> frame;
+    counter ++;
 
-		if(!lastFrame.empty()){
+    if(counter % 100 == 0){
+      cout << "nowy frame" << endl;
+      lastFrame = frame.clone();
+    }
+    if(!lastFrame.empty()){
 
-			processFrames(lastFrame, frame);
+      processFrames(lastFrame, frame);
 
-			imshow("frame", frame);
-			imshow("lastFrame", lastFrame);
-		}
+      imshow("lastFrame", lastFrame);
+    }
+
+    imshow("frame", frame);
 
 		keyPressed = waitKey(33);
 	}
@@ -338,7 +344,7 @@ void processFrames( Mat lastFrame, Mat newFrame){
     scene.push_back( img2_keypoints[ matches[i].trainIdx ].pt );
   }
 
-  Mat H = findHomography( obj, scene, CV_RANSAC );
+  Mat H = findHomography( cv::Mat(obj), cv::Mat(scene), CV_RANSAC );
 
   std::vector<Point2f> obj_corners(4);
   obj_corners[0] = cvPoint(0,0); obj_corners[1] = cvPoint( img1.cols, 0 );
@@ -355,7 +361,7 @@ void processFrames( Mat lastFrame, Mat newFrame){
   line( homography, scene_corners[3] + Point2f( img1.cols, 0), scene_corners[0] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
 
 
-
+  imshow("homograhy", homography);
 }
 
 
