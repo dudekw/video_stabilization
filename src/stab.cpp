@@ -16,7 +16,7 @@ cv::Ptr<cv::DescriptorExtractor> extractor ;//= new cv::OrbDescriptorExtractor;
 cv::Ptr<cv::DescriptorMatcher > matcher;// = new cv::BruteForceMatcher<cv::HammingLUT>;
 BFMatcher _matcher;
 KalmanFilter KF(4,2,0); 
-Mat_<float> measurement;
+Mat_<float> measurement(2,1);
 
 //RobustMatcher class taken from OpenCV2 Computer Vision Application Programming Cookbook Ch 9
 class RobustMatcher {
@@ -275,8 +275,8 @@ RobustMatcher rmatcher;
 }
 void processFrames( Mat, Mat);
 
-int FRAME_WIDTH = 854;
-int FRAME_HEIGHT = 480;
+int FRAME_WIDTH = 213;//854;
+int FRAME_HEIGHT = 120;//480;
 double TARGET_HEIGHT = 0.8;
 double TARGET_WIDTH = 0.8;
 cv::Rect TARGET_RECTANGLE = cv::Rect((FRAME_WIDTH*(1-TARGET_WIDTH))/2,
@@ -284,8 +284,30 @@ cv::Rect TARGET_RECTANGLE = cv::Rect((FRAME_WIDTH*(1-TARGET_WIDTH))/2,
                                     FRAME_WIDTH*TARGET_WIDTH,
                                     FRAME_HEIGHT*TARGET_HEIGHT);
 
+Point finalCenterPoint = cv::Point(0,0);
+
+void KalmanInit(){
+    //KF(4, 2, 0);
+    //
+    cout << "init kalman" <<endl;
+    KF.transitionMatrix = *(Mat_<float>(4, 4) << 1,0,1,0,   0,1,0,1,  0,0,1,0,  0,0,0,1);
+    measurement.setTo(Scalar(0));
+ 
+    // init...
+    KF.statePre.at<float>(0) = finalCenterPoint.x;
+    KF.statePre.at<float>(1) = finalCenterPoint.y;
+    KF.statePre.at<float>(2) = 0;
+    KF.statePre.at<float>(3) = 0;
+    setIdentity(KF.measurementMatrix);
+    setIdentity(KF.processNoiseCov, Scalar::all(1e-4));
+    setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
+    setIdentity(KF.errorCovPost, Scalar::all(.1));
+}
+
 int main(int argc, char** argv)
 {
+
+  KalmanInit();
 
 	cv::VideoCapture cap("../test.mp4");
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
@@ -300,6 +322,9 @@ int main(int argc, char** argv)
 	while(keyPressed != 27){
 
 		cap >> frame;
+    if(frame.cols != FRAME_WIDTH){
+      resize(frame, frame, Size(FRAME_WIDTH, FRAME_HEIGHT));
+    }
     counter ++;
 
     cout << "nowa klatka " << frame.cols << " " << frame.rows << endl;
@@ -328,22 +353,7 @@ int main(int argc, char** argv)
     cout<<"test"<< endl;
   return 0;
 }
-void KalmanInit(){
-    //KF(4, 2, 0);
-    KF.transitionMatrix = *(Mat_<float>(4, 4) << 1,0,1,0,   0,1,0,1,  0,0,1,0,  0,0,0,1);
-    measurement(2,1); 
-    measurement.setTo(Scalar(0));
- 
-    // init...
-    KF.statePre.at<float>(0) = 0.5f;
-    KF.statePre.at<float>(1) = 0.5f;
-    KF.statePre.at<float>(2) = 0;
-    KF.statePre.at<float>(3) = 0;
-    setIdentity(KF.measurementMatrix);
-    setIdentity(KF.processNoiseCov, Scalar::all(1e-4));
-    setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
-    setIdentity(KF.errorCovPost, Scalar::all(.1));
-}
+
 void processFrames( Mat lastFrame, Mat newFrame){
 
 	//Load input image detect keypoints
@@ -405,7 +415,7 @@ void processFrames( Mat lastFrame, Mat newFrame){
     circle( debug, center, 20 , cv::Scalar(255,0,0), -1);
 
 
-    cout << "Kalman start" << center.x << " " << center.y << endl;
+    //cout << "Kalman start" << center.x << " " << center.y << endl;
 
     if(center.x > FRAME_WIDTH || center.x < 0 ||
        center.y > FRAME_HEIGHT || center.y < 0){
@@ -417,16 +427,16 @@ void processFrames( Mat lastFrame, Mat newFrame){
     Mat prediction = KF.predict();
     Point predictPt(prediction.at<float>(0),prediction.at<float>(1));
 
-    cout << "Kalman start2" << center.x << " " << center.y << endl;
+    //cout << "Kalman start2" << center.x << " " << center.y << endl;
 
     float temp = float(center.x)/FRAME_WIDTH;
-    cout << "Kalman start3" << temp << endl;
+    //cout << "Kalman start3" << temp << endl;
                      
-    measurement(0) = temp;
+    measurement(0) = center.x;//(float)center.x/FRAME_WIDTH;
 
-    measurement(1) = float(center.y)/FRAME_HEIGHT;
+    measurement(1) = center.y;//(float)center.y/FRAME_HEIGHT;
 
-    cout << "Kalman mes " << measurement(0) << " " << measurement(1) << endl;
+    //cout << "Kalman mes " << measurement(0) << " " << measurement(1) << endl;
 
 
     Point measPt(measurement(0),measurement(1));
@@ -438,12 +448,24 @@ void processFrames( Mat lastFrame, Mat newFrame){
 
     cout << "Kalman mes " << statePt.x << " " << statePt.y << endl;
 
-    statePt.x *= FRAME_WIDTH;
-    statePt.y *= FRAME_HEIGHT;
+    //statePt.x *= FRAME_WIDTH;
+    //statePt.y *= FRAME_HEIGHT;
 
     circle( debug, statePt, 10 , cv::Scalar(255,255,0), -1);
         imshow("debug", debug);
 
+    if(statePt.x <TARGET_RECTANGLE.width/2) statePt.x = TARGET_RECTANGLE.width/2;
+    if(statePt.y <TARGET_RECTANGLE.height/2) statePt.y = TARGET_RECTANGLE.height/2;
+    if(statePt.x > TARGET_RECTANGLE.x*2 + TARGET_RECTANGLE.width/2) statePt.x = TARGET_RECTANGLE.x*2 + TARGET_RECTANGLE.width/2;
+    if(statePt.y > TARGET_RECTANGLE.y*2 + TARGET_RECTANGLE.height/2) statePt.y = TARGET_RECTANGLE.y*2 + TARGET_RECTANGLE.height/2;
+
+    Mat final_output = img2.clone();
+    final_output = final_output(cv::Rect(statePt.x - TARGET_RECTANGLE.width/2,
+                                          statePt.y - TARGET_RECTANGLE.height/2,
+                                          TARGET_RECTANGLE.width,
+                                          TARGET_RECTANGLE.height));
+
+    imshow("final", final_output);
     //imshow("homograhy", homography);
   }
 
