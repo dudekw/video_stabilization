@@ -280,8 +280,8 @@ RobustMatcher rmatcher;
 }
 void processFrames( Mat, Mat);
 
-int FRAME_WIDTH = 213;//854;
-int FRAME_HEIGHT = 120;//480;
+int FRAME_WIDTH = 427;//213;//854;
+int FRAME_HEIGHT = 240;//120;//480;
 double TARGET_HEIGHT = 0.8;
 double TARGET_WIDTH = 0.8;
 cv::Rect TARGET_RECTANGLE = cv::Rect((FRAME_WIDTH*(1-TARGET_WIDTH))/2,
@@ -324,13 +324,44 @@ void PoseWindows(){
 }
 
 
+void moveWindows(){
+
+}
+
+void initTargetRect( int width, int height ){
+  TARGET_RECTANGLE = cv::Rect((width*(1-TARGET_WIDTH))/2,
+                                    (height*(1-TARGET_HEIGHT))/2,
+                                    width*TARGET_WIDTH,
+                                    height*TARGET_HEIGHT);
+}
+
 int main(int argc, char** argv)
 {
+  string videoPath = "";
+
+  if(argc == 1){
+    initTargetRect(FRAME_WIDTH, FRAME_HEIGHT);
+  } else if(argc == 3){
+    cout << atoi(argv[1]) << " " << atoi(argv[2]);
+    initTargetRect(atoi(argv[1]), atoi(argv[2]));
+    FRAME_WIDTH = atoi(argv[1]);
+    FRAME_HEIGHT = atoi(argv[2]);
+  } else if(argc == 4){
+    initTargetRect(atoi(argv[1]), atoi(argv[2]));
+    FRAME_WIDTH = atoi(argv[1]);
+    FRAME_HEIGHT = atoi(argv[2]);
+    videoPath = argv[3];
+  }
 
   KalmanInit();
   NewWindows();
 
-	cv::VideoCapture cap(0);//"../test.mp4");
+  cv::VideoCapture cap;
+  if(videoPath.compare("") != 0){
+    cap.open(videoPath);
+  } else {
+    cap.open(0);
+  }
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
 
@@ -369,6 +400,9 @@ PoseWindows();
     }
 
 		keyPressed = waitKey(33);
+
+    //ustaw okienka
+    moveWindows();
 	}
   cap.release();
     cout<<"test"<< endl;
