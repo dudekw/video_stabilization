@@ -15,7 +15,7 @@ cv::Ptr<cv::FeatureDetector> detector;
 cv::Ptr<cv::DescriptorExtractor> extractor ;//= new cv::OrbDescriptorExtractor;
 cv::Ptr<cv::DescriptorMatcher > matcher;// = new cv::BruteForceMatcher<cv::HammingLUT>;
 BFMatcher _matcher;
-KalmanFilter KF; 
+KalmanFilter KF(4,2,0); 
 Mat_<float> measurement;
 
 //RobustMatcher class taken from OpenCV2 Computer Vision Application Programming Cookbook Ch 9
@@ -329,7 +329,7 @@ int main(int argc, char** argv)
   return 0;
 }
 void KalmanInit(){
-    KF(4, 2, 0);
+    //KF(4, 2, 0);
     KF.transitionMatrix = *(Mat_<float>(4, 4) << 1,0,1,0,   0,1,0,1,  0,0,1,0,  0,0,0,1);
     measurement(2,1); 
     measurement.setTo(Scalar(0));
