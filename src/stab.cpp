@@ -15,7 +15,8 @@ cv::Ptr<cv::FeatureDetector> detector;
 cv::Ptr<cv::DescriptorExtractor> extractor ;//= new cv::OrbDescriptorExtractor;
 cv::Ptr<cv::DescriptorMatcher > matcher;// = new cv::BruteForceMatcher<cv::HammingLUT>;
 BFMatcher _matcher;
-  
+KalmanFilter KF; 
+Mat_<float> measurement;
 
 //RobustMatcher class taken from OpenCV2 Computer Vision Application Programming Cookbook Ch 9
 class RobustMatcher {
@@ -327,7 +328,22 @@ int main(int argc, char** argv)
     cout<<"test"<< endl;
   return 0;
 }
-
+void KalmanInit(){
+    KF(4, 2, 0);
+    KF.transitionMatrix = *(Mat_<float>(4, 4) << 1,0,1,0,   0,1,0,1,  0,0,1,0,  0,0,0,1);
+    measurement(2,1); 
+    measurement.setTo(Scalar(0));
+ 
+    // init...
+    KF.statePre.at<float>(0) = FRAME_WIDTH/2;
+    KF.statePre.at<float>(1) = FRAME_HEIGHT/2;
+    KF.statePre.at<float>(2) = 0;
+    KF.statePre.at<float>(3) = 0;
+    setIdentity(KF.measurementMatrix);
+    setIdentity(KF.processNoiseCov, Scalar::all(1e-4));
+    setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
+    setIdentity(KF.errorCovPost, Scalar::all(.1));
+}
 void processFrames( Mat lastFrame, Mat newFrame){
 
 	//Load input image detect keypoints
@@ -387,10 +403,21 @@ void processFrames( Mat lastFrame, Mat newFrame){
     center += Point2f( img1.cols, 0);
 
     circle( debug, center, 20 , cv::Scalar(255,0,0), -1);
+    
+    // First predict, to update the internal statePre variable
+    Mat prediction = KF.predict();
+    Point predictPt(prediction.at<float>(0),prediction.at<float>(1));
+                     
+    measurement(0) = center.x;
+    measurement(1) = center.y;
 
-
-
-    imshow("debug", debug);
+    Point measPt(measurement(0),measurement(1));
+     
+    // The "correct" phase that is going to use the predicted value and our measurement
+    Mat estimated = KF.correct(measurement);
+    Point statePt(estimated.at<float>(0),estimated.at<float>(1));
+    circle( debug, measPt, 10 , cv::Scalar(255,255,0), -1);
+        imshow("debug", debug);
 
     //imshow("homograhy", homography);
   }
