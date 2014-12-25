@@ -293,8 +293,8 @@ RobustMatcher rmatcher;
 }
 void processFrames( Mat, Mat);
 
-int FRAME_WIDTH = 213;//854;
-int FRAME_HEIGHT = 120;//480;
+int FRAME_WIDTH = 427;//213;//854;
+int FRAME_HEIGHT = 240;//120;//480;
 double TARGET_HEIGHT = 0.8;
 double TARGET_WIDTH = 0.8;
 cv::Rect TARGET_RECTANGLE = cv::Rect((FRAME_WIDTH*(1-TARGET_WIDTH))/2,
@@ -333,7 +333,7 @@ void PoseWindows(){
   moveWindow("frame", 0,0);
   moveWindow("debug", 500,10);
   moveWindow("lastFrame", 0,500);
-  moveWindow("final", 1000,1000);
+  moveWindow("final", 500,500);
 }
 
 
