@@ -18,14 +18,28 @@ BFMatcher _matcher;
 KalmanFilter KF(4,2,0); 
 Mat_<float> measurement(2,1);
 
+//trackbars
+  int lastFrame_X;
+  int lastFrame_Y;
+
+  int frame_X;
+  int frame_Y;
+  
+  int final_X;
+  int final_Y;
+  
+  int debug_X;
+  int debug_Y;
+
+  cv::Mat frame;
 //RobustMatcher class taken from OpenCV2 Computer Vision Application Programming Cookbook Ch 9
 class RobustMatcher {
   private:
-     // pointer to the feature point detector object
-     cv::Ptr<cv::FeatureDetector> detector;
+    // pointer to the feature point detector object
+    cv::Ptr<cv::FeatureDetector> detector;
      // pointer to the feature descriptor extractor object
-     cv::Ptr<cv::DescriptorExtractor> extractor;
-     // pointer to the matcher object
+    cv::Ptr<cv::DescriptorExtractor> extractor;
+    // pointer to the matcher object
      cv::Ptr<cv::DescriptorMatcher > matcher;
      float ratio; // max ratio between 1st and 2nd NN
      bool refineF; // if true will refine the F matrix
@@ -254,6 +268,10 @@ class RobustMatcher {
   }
 };
 RobustMatcher rmatcher;
+
+
+
+
  void setRMatcher(){
     // set parameters
 
@@ -303,6 +321,21 @@ void KalmanInit(){
     setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
     setIdentity(KF.errorCovPost, Scalar::all(.1));
 }
+void NewWindows(){
+
+
+  namedWindow("lastFrame",WINDOW_AUTOSIZE);
+  namedWindow("debug",WINDOW_AUTOSIZE);
+  namedWindow("frame",WINDOW_AUTOSIZE);
+  namedWindow("final",WINDOW_AUTOSIZE);
+}
+void PoseWindows(){
+  moveWindow("frame", 0,0);
+  moveWindow("debug", 500,10);
+  moveWindow("lastFrame", 0,500);
+  moveWindow("final", 1000,1000);
+}
+
 
 void moveWindows(){
 
@@ -325,19 +358,35 @@ int main(int argc, char** argv)
   }
 
   KalmanInit();
+  NewWindows();
 
-	cv::VideoCapture cap("../test.mp4");
+
+  createTrackbar("lastFrame_X", "lastFrame", &lastFrame_X,250);
+  createTrackbar("lastFrame_Y", "lastFrame", &lastFrame_Y,250);
+
+  createTrackbar("frame-X", "frame", &frame_X,250);
+  createTrackbar("frame_Y", "frame", &frame_Y,250);
+
+  createTrackbar("final-X", "final", &final_X,250);
+  createTrackbar("final-Y", "final", &final_Y,250);
+
+  createTrackbar("debug-X", "debug", &debug_X,250);
+  createTrackbar("debug-Y", "debug", &debug_Y,250);
+
+
+
+	cv::VideoCapture cap(0);//"../test.mp4");
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
 
-	cv::Mat frame;
+
 	cv::Mat lastFrame;
 
 	int keyPressed = -1;
   int counter = 0;
   setRMatcher();
 	while(keyPressed != 27){
-
+PoseWindows();
 		cap >> frame;
     if(frame.cols != FRAME_WIDTH){
       resize(frame, frame, Size(FRAME_WIDTH, FRAME_HEIGHT));
@@ -371,6 +420,7 @@ int main(int argc, char** argv)
 	}
   cap.release();
     cout<<"test"<< endl;
+    PoseWindows();
   return 0;
 }
 
