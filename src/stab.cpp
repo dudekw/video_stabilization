@@ -304,8 +304,25 @@ void KalmanInit(){
     setIdentity(KF.errorCovPost, Scalar::all(.1));
 }
 
+void moveWindows(){
+
+}
+
+void initTargetRect( int width, int height ){
+  TARGET_RECTANGLE = cv::Rect((width*(1-TARGET_WIDTH))/2,
+                                    (height*(1-TARGET_HEIGHT))/2,
+                                    width*TARGET_WIDTH,
+                                    height*TARGET_HEIGHT);
+}
+
 int main(int argc, char** argv)
 {
+  if(argc != 3){
+    initTargetRect(FRAME_WIDTH, FRAME_HEIGHT);
+  } else {
+    cout << atoi(argv[1]) << " " << atoi(argv[2]);
+    initTargetRect(atoi(argv[1]), atoi(argv[2]));
+  }
 
   KalmanInit();
 
@@ -348,6 +365,9 @@ int main(int argc, char** argv)
     }
 
 		keyPressed = waitKey(33);
+
+    //ustaw okienka
+    moveWindows();
 	}
   cap.release();
     cout<<"test"<< endl;
