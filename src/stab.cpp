@@ -17,7 +17,7 @@ cv::Ptr<cv::DescriptorMatcher > matcher;// = new cv::BruteForceMatcher<cv::Hammi
 BFMatcher _matcher;
 KalmanFilter KF(4,2,0); 
 Mat_<float> measurement(2,1);
-
+Mat final_output;
  
 //RobustMatcher class taken from OpenCV2 Computer Vision Application Programming Cookbook Ch 9
 class RobustMatcher {
@@ -262,7 +262,7 @@ RobustMatcher rmatcher;
  void setRMatcher(){
     // set parameters
 
-  int numKeyPoints = 1500;
+  int numKeyPoints = 2000;
 
   //Instantiate robust matcher
 
@@ -324,10 +324,6 @@ void PoseWindows(){
 }
 
 
-void moveWindows(){
-
-}
-
 void initTargetRect( int width, int height ){
   TARGET_RECTANGLE = cv::Rect((width*(1-TARGET_WIDTH))/2,
                                     (height*(1-TARGET_HEIGHT))/2,
@@ -337,8 +333,7 @@ void initTargetRect( int width, int height ){
 
 int main(int argc, char** argv)
 {
-  string videoPath = "";
-
+  string videoPath = "../data/train.mp4";
   if(argc == 1){
     initTargetRect(FRAME_WIDTH, FRAME_HEIGHT);
   } else if(argc == 3){
@@ -368,12 +363,24 @@ int main(int argc, char** argv)
   cv::Mat frame;
 	cv::Mat lastFrame;
 
-	int keyPressed = -1;
+// ============  
+  //===========Inicjalizacja zapisu wideo
+//==============
+
+	Size frameSize(static_cast<int>(FRAME_WIDTH), static_cast<int>(FRAME_HEIGHT));
+VideoWriter oVideoWriter ("MyVideo.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true);
+
+
+
+
+  int keyPressed = -1;
   int counter = 0;
   setRMatcher();
 	while(keyPressed != 27){
-PoseWindows();
-		cap >> frame;
+  
+  PoseWindows();
+	
+  	cap >> frame;
     if(frame.cols != FRAME_WIDTH){
       resize(frame, frame, Size(FRAME_WIDTH, FRAME_HEIGHT));
     }
@@ -387,26 +394,27 @@ PoseWindows();
       processFrames(lastFrame, frame);
 
       imshow("lastFrame", lastFrame);
+      // save video
+       oVideoWriter.write(final_output); //writer the frame into the file
     }
 
     imshow("frame", frame);
-
+ 
     if(counter > 15 && !frame.empty()){ //counter % 1 == 0){
   //       >
   //    \____/
       cout << "nowy frame" << endl;
       lastFrame = frame.clone();
-      lastFrame = lastFrame(TARGET_RECTANGLE);
+     // lastFrame = lastFrame(TARGET_RECTANGLE);   /// ======= train.mp4 nie działa z tym
     }
 
 		keyPressed = waitKey(33);
 
     //ustaw okienka
-    moveWindows();
 	}
   cap.release();
-    cout<<"test"<< endl;
-    PoseWindows();
+
+
   return 0;
 }
 
@@ -423,6 +431,8 @@ void processFrames( Mat lastFrame, Mat newFrame){
 	std::vector<cv::DMatch> matches;
 	img1 = lastFrame;
 	img2 = newFrame;
+  cout<<img1.cols<<endl;
+  cout<<img2.cols<<endl;
 	rmatcher.match(img1, img2, matches, img1_keypoints, img2_keypoints);
 
 	Mat debug;
@@ -433,7 +443,6 @@ void processFrames( Mat lastFrame, Mat newFrame){
 
   std::vector<Point2f> obj;
   std::vector<Point2f> scene;
-
   for( int i = 0; i < matches.size(); i++ )
   {
     //-- Get the keypoints from the good matches
@@ -515,7 +524,7 @@ void processFrames( Mat lastFrame, Mat newFrame){
     if(statePt.x > TARGET_RECTANGLE.x*2 + TARGET_RECTANGLE.width/2) statePt.x = TARGET_RECTANGLE.x*2 + TARGET_RECTANGLE.width/2;
     if(statePt.y > TARGET_RECTANGLE.y*2 + TARGET_RECTANGLE.height/2) statePt.y = TARGET_RECTANGLE.y*2 + TARGET_RECTANGLE.height/2;
 
-    Mat final_output = img2.clone();
+    final_output = img2.clone();
     final_output = final_output(cv::Rect(statePt.x - TARGET_RECTANGLE.width/2,
                                           statePt.y - TARGET_RECTANGLE.height/2,
                                           TARGET_RECTANGLE.width,
