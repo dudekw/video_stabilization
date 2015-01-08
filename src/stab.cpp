@@ -367,10 +367,11 @@ int main(int argc, char** argv)
   //===========Inicjalizacja zapisu wideo
 //==============
 
-	Size frameSize(static_cast<int>(FRAME_WIDTH), static_cast<int>(FRAME_HEIGHT));
+	Size frameSize(static_cast<int>(TARGET_RECTANGLE.width), static_cast<int>(TARGET_RECTANGLE.height));
+
+  //zlap codec kamery
+  int ex = static_cast<int>(cap.get(CV_CAP_PROP_FOURCC));  //ex
 VideoWriter oVideoWriter ("MyVideo.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true);
-
-
 
 
   int keyPressed = -1;
@@ -395,7 +396,8 @@ VideoWriter oVideoWriter ("MyVideo.avi", CV_FOURCC('P','I','M','1'), 20, frameSi
 
       imshow("lastFrame", lastFrame);
       // save video
-       oVideoWriter.write(final_output); //writer the frame into the file
+        cout << "nagrywanie " << final_output.cols << " x " << final_output.rows << endl; 
+       oVideoWriter << final_output; //writer the frame into the file
     }
 
     imshow("frame", frame);
@@ -413,6 +415,7 @@ VideoWriter oVideoWriter ("MyVideo.avi", CV_FOURCC('P','I','M','1'), 20, frameSi
     //ustaw okienka
 	}
   cap.release();
+  oVideoWriter.release();
 
 
   return 0;
