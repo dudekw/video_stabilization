@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "opencv2/core/core.hpp"
 #include "opencv2/features2d/features2d.hpp"
-
+#include <time.h>   
 
 using namespace std;
 using namespace cv;
@@ -15,10 +15,13 @@ cv::Ptr<cv::FeatureDetector> detector;
 cv::Ptr<cv::DescriptorExtractor> extractor ;//= new cv::OrbDescriptorExtractor;
 cv::Ptr<cv::DescriptorMatcher > matcher;// = new cv::BruteForceMatcher<cv::HammingLUT>;
 BFMatcher _matcher;
-KalmanFilter KF(4,2,0); 
-Mat_<float> measurement(2,1);
+KalmanFilter KF(4,4,0); 
+Mat_<float> measurement(4,1);
 Mat final_output;
- 
+
+ //cv::Point2f center = cv::Point2f(0,0);
+ Mat line2(240,360,CV_8UC3);
+ //line2 = zeros(480,640,CV_8UC3);
 //RobustMatcher class taken from OpenCV2 Computer Vision Application Programming Cookbook Ch 9
 class RobustMatcher {
   private:
@@ -282,15 +285,46 @@ void processFrames( Mat, Mat);
 
 int FRAME_WIDTH = 427;//213;//854;
 int FRAME_HEIGHT = 240;//120;//480;
-double TARGET_HEIGHT = 0.8;
-double TARGET_WIDTH = 0.8;
+double TARGET_HEIGHT = 0.6;
+double TARGET_WIDTH = 0.6;
 cv::Rect TARGET_RECTANGLE = cv::Rect((FRAME_WIDTH*(1-TARGET_WIDTH))/2,
                                     (FRAME_HEIGHT*(1-TARGET_HEIGHT))/2,
                                     FRAME_WIDTH*TARGET_WIDTH,
                                     FRAME_HEIGHT*TARGET_HEIGHT);
 
 Point finalCenterPoint = cv::Point(0,0);
+double t_time;
+double time_now;
+double velocity_x;
+double velocity_y;
+double time_old =0;
 
+ cv::Point2f center_old = cv::Point2f(0,0);
+void getTimeInit(){
+  t_time = (double)getTickCount();
+
+}
+void getTimeStop(){
+
+  t_time = ((double)getTickCount() - t_time)/getTickFrequency();
+  cout << "Times passed in seconds: " << t_time << endl;
+}
+void getVelocity(Point2f center, double t_time){
+
+time_now=t_time;
+
+if(time_old == 0){
+    time_old=t_time;
+    center_old=center;
+}
+
+velocity_x = (center.x-center_old.x);///(time_now-time_old);
+velocity_y = (center.y-center_old.y);///(time_now-time_old);
+center_old = center;
+time_old= t_time;
+cout<<"prędkość X: " << velocity_x<< endl;
+cout<<"prędkość Y: " << velocity_y<< endl;
+}
 void KalmanInit(){
     //KF(4, 2, 0);
     //
@@ -304,7 +338,7 @@ void KalmanInit(){
     KF.statePre.at<float>(2) = 0;
     KF.statePre.at<float>(3) = 0;
     setIdentity(KF.measurementMatrix);
-    setIdentity(KF.processNoiseCov, Scalar::all(1e-4));
+    setIdentity(KF.processNoiseCov, Scalar::all(1e-2));
     setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
     setIdentity(KF.errorCovPost, Scalar::all(.1));
 }
@@ -333,7 +367,7 @@ void initTargetRect( int width, int height ){
 
 int main(int argc, char** argv)
 {
-  string videoPath = "../data/train.mp4";
+  string videoPath = "../data/train.mp4"; 
   if(argc == 1){
     initTargetRect(FRAME_WIDTH, FRAME_HEIGHT);
   } else if(argc == 3){
@@ -347,7 +381,7 @@ int main(int argc, char** argv)
     FRAME_HEIGHT = atoi(argv[2]);
     videoPath = argv[3];
   }
-
+  getTimeInit();
   KalmanInit();
   NewWindows();
 
@@ -371,7 +405,7 @@ int main(int argc, char** argv)
 
   //zlap codec kamery
   int ex = static_cast<int>(cap.get(CV_CAP_PROP_FOURCC));  //ex
-VideoWriter oVideoWriter ("MyVideo.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true);
+VideoWriter oVideoWriter ("MyVideo_bez_v.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true);
 
 
   int keyPressed = -1;
@@ -393,7 +427,7 @@ VideoWriter oVideoWriter ("MyVideo.avi", CV_FOURCC('P','I','M','1'), 20, frameSi
     if(!lastFrame.empty()){
 
       processFrames(lastFrame, frame);
-
+//center_old=center+center-center_old;
       imshow("lastFrame", lastFrame);
       // save video
         cout << "nagrywanie " << final_output.cols << " x " << final_output.rows << endl; 
@@ -402,7 +436,7 @@ VideoWriter oVideoWriter ("MyVideo.avi", CV_FOURCC('P','I','M','1'), 20, frameSi
 
     imshow("frame", frame);
  
-    if(counter > 15 && !frame.empty()){ //counter % 1 == 0){
+    if(counter > 1 && !frame.empty()){ //counter % 1 == 0){
   //       >
   //    \____/
       cout << "nowy frame" << endl;
@@ -473,6 +507,7 @@ void processFrames( Mat lastFrame, Mat newFrame){
     line( debug, scene_corners[3] + Point2f( img1.cols, 0), scene_corners[0] + Point2f( img1.cols, 0), Scalar( 0, 255, 0), 4 );
 
     cv::Point2f center = cv::Point2f(0,0);
+    
     for(int i = 0; i < scene_corners.size(); i ++){
       center += scene_corners[i];
     }
@@ -499,16 +534,23 @@ void processFrames( Mat lastFrame, Mat newFrame){
 
     float temp = float(center.x)/FRAME_WIDTH;
     //cout << "Kalman start3" << temp << endl;
-                     
+    
+    getTimeStop();
+
+    getVelocity(center, t_time);
+
     measurement(0) = center.x;//(float)center.x/FRAME_WIDTH;
 
     measurement(1) = center.y;//(float)center.y/FRAME_HEIGHT;
+    
+    measurement(2) = 0;//velocity_x/100;//(float)center.x/FRAME_WIDTH;
 
+    measurement(3) = 0;//velocity_y;
     //cout << "Kalman mes " << measurement(0) << " " << measurement(1) << endl;
 
 
     Point measPt(measurement(0),measurement(1));
-     
+    
     // The "correct" phase that is going to use the predicted value and our measurement
     Mat estimated = KF.correct(measurement);
     Point statePt(estimated.at<float>(0),estimated.at<float>(1));
@@ -524,8 +566,8 @@ void processFrames( Mat lastFrame, Mat newFrame){
 
     if(statePt.x <TARGET_RECTANGLE.width/2) statePt.x = TARGET_RECTANGLE.width/2;
     if(statePt.y <TARGET_RECTANGLE.height/2) statePt.y = TARGET_RECTANGLE.height/2;
-    if(statePt.x > TARGET_RECTANGLE.x*2 + TARGET_RECTANGLE.width/2) statePt.x = TARGET_RECTANGLE.x*2 + TARGET_RECTANGLE.width/2;
-    if(statePt.y > TARGET_RECTANGLE.y*2 + TARGET_RECTANGLE.height/2) statePt.y = TARGET_RECTANGLE.y*2 + TARGET_RECTANGLE.height/2;
+    if(statePt.x > TARGET_RECTANGLE.x*2 + TARGET_RECTANGLE.width) statePt.x = TARGET_RECTANGLE.x*2 + TARGET_RECTANGLE.width;
+    if(statePt.y > TARGET_RECTANGLE.y*2 + TARGET_RECTANGLE.height) statePt.y = TARGET_RECTANGLE.y*2 + TARGET_RECTANGLE.height;
 
     final_output = img2.clone();
     final_output = final_output(cv::Rect(statePt.x - TARGET_RECTANGLE.width/2,
@@ -533,8 +575,14 @@ void processFrames( Mat lastFrame, Mat newFrame){
                                           TARGET_RECTANGLE.width,
                                           TARGET_RECTANGLE.height));
 
+   namedWindow("line",WINDOW_AUTOSIZE);
+   
+   
+    circle( line2,Point2f( center.x, center.y),1, Scalar( 0, 255, 0), -1 );
     imshow("final", final_output);
+    imshow("line", line2);
     //imshow("homograhy", homography);
+    //center_old=center+center-center_old;
   }
 
   
